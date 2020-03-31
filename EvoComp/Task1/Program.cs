@@ -176,17 +176,19 @@ namespace Zad1
             var finalPhenotype = (geneticAlgorithm.BestChromosome as FloatingPointChromosome).ToFloatingPoints();
             var finalFitness = (geneticAlgorithm.BestChromosome as FloatingPointChromosome).Fitness.Value;
 
+            string strategia = geneticAlgorithmChoice == 1 ? "SGA" : "One-fifth-rule";
+
             Console.Clear();
             Console.WriteLine("RESULT" +
                 "\n\nGenerations: " + geneticAlgorithm.GenerationsNumber +
                 "\nRange:       " + minValue + ", " + maxValue +
                 "\n\nx1:      " + finalPhenotype[0] +
                 "\nx2:      " + finalPhenotype[1] +
-                "\nFitness: " + finalFitness +
-                "\nSelection: " + ParseSelection(selection).GetType().Name +
-                "\nCrossover: " + ParserCrossover(crossover).GetType().Name +
-                "\nMutation: " + ParseMutation(mutation).GetType().Name
-                );
+                "\nMutation: " + ParseMutation(mutation).GetType().Name.Replace("Mutation", "") +
+                "\nCrossover: " + ParserCrossover(crossover).GetType().Name.Replace("Crossover", "") +
+                "\nSelection: " + ParseSelection(selection).GetType().Name.Replace("Selection", "") +
+                "\nStrategia: " + strategia + 
+                "\nFitness: " + Math.Round(finalFitness, 3));
         }
     }
 }
