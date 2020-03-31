@@ -1,0 +1,262 @@
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+\frenchspacing
+
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+
+\usepackage{amsmath, amssymb, mathtools}
+
+\usepackage{fancyhdr, lastpage}
+\pagestyle{fancyplain}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\cfoot{\thepage\ / \pageref*{LastPage}}
+
+% csharp cmd
+\newcommand{\Csharp}{%
+  {\settoheight{\dimen0}{C}C\kern-.05em \resizebox{!}{\dimen0}{\raisebox{\depth}{\# }}}}
+
+\studycycle{Informatyka stosowana, studia dzienne, II st.}
+\coursesemester{I}
+
+\coursename{Obliczenia ewolucyjne}
+\courseyear{2019/2020}
+
+\courseteacher{dr inż. Łukasz Chomątek}
+\coursegroup{środa, 14:00}
+
+\author{%
+  \\
+  \studentinfo[234067@edu.p.lodz.pl]{Bartosz Jurczewski}{234067}\\
+  \studentinfo[234106@edu.p.lodz.pl]{Karol Podlewski}{234106}%
+}
+
+\title{Zadanie 1: Optymalizacja funkcji wielu zmiennych}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancyplain}
+
+\clearpage
+
+\section{Cel}
+
+Celem zadania była optymalizacja funkcji wielu zmiennych na zadanym
+przedziale. Dla potrzeby opracowanego rozwiązania przyjęliśmy liczbę zmiennych jako 2.
+
+
+\section{Opis implementacji}
+
+Zadanie zostało zrealizowane przy użyciu frameworka \textit{.NET Core} w wersji 3.1, języka \textit{\Csharp}, z wykorzystaniem bibliotek: \textit{GeneticSharp}\cite{GeneticSharp}.
+
+
+\section{Wprowadzenie}
+
+\subsection{Algorytm}
+W przygotowanym rozwiązaniu użytkownik może wybrać jeden z dwóch algorytmów. \textbf{Reguła 1/5 sukcesu} dokłada do \textbf{SGA} zmienny krok mutacji.
+
+\begin{enumerate}
+    \item \textbf{Simple Genetic Algorithm, SGA} - bazowy algorytm genetyczny 
+    \item \textbf{Reguła 1/5 sukcesu} - Jeśli przez k kolejnych generacji więcej niż 1/5 mutacji kończy się sukcesem, należy zwiększyć krok mutacji. W przeciwnym wypadku krok mutacji należy zmniejszyć.
+\end{enumerate}
+
+\subsection{Krzyżowanie}
+
+W przygotowanym rozwiązaniu użytkownik może wybrać jedną z dwóch metod krzyżowania:
+
+\begin{enumerate}
+    \item \textbf{Uniform Crossover} - każdy bit jest losowo wybierany od jednego z dwóch rodziców z równym prawdopodobieństwem,
+    \item \textbf{Three Parent Crossover} - selekcja, która polega na wybraniu trzech losowych rodziców. Po kolei porównywany jest każdy bit pierwszego oraz drugiego rodzica - jeżeli bit jest identyczny, przechodzi on do potomstwa, jeżeli się różni - brany jest bit od trzeciego rodzica.
+\end{enumerate}
+
+\subsection{Mutacja}
+
+W przygotowanym rozwiązaniu użytkownik może wybrać jedną z dwóch metod mutacji:
+
+\begin{enumerate}
+    \item \textbf{Flip Bit Mutation} - odwrócenie wartości wybranego genu (zamiana 0 na 1, 1 na 0),
+    \item \textbf{Reverse Sequence Mutation} - bierzemy sekwencję S ograniczoną przez dwie losowo wybrane pozycje $i$ i $j$, takie że $i < j$, którą odwracamy.
+\end{enumerate}
+
+\subsection{Selekcja}
+
+W przygotowanym rozwiązaniu użytkownik może wybrać jedną z dwóch metod selekcji:
+
+\begin{enumerate}
+    \item \textbf{Elite Selection} - wybiera najlepsze chromosomy pod względem dopasowania,
+    \item \textbf{Roulette Wheel Selection} - metoda koła ruletki, która polega na przypisaniu każdemu osobnikowi prawdopodobieństwa selekcji (im większe przystosowanie, tym większe prawdopodobieństwo), a następnie wylosowaniu chromosomów z całej puli.
+\end{enumerate}
+
+\subsection{Funkcje celu}
+
+W przygotowanym rozwiązaniu użytkownik może wybrać jedną z dwóch funkcji celu:
+
+\begin{enumerate}
+    \item $y=sin(x_1)cos(x_2),$
+    \item$ y=sin(x_1)cos(x_2)x_1 - sin(x_2)cos(x_1) $
+\end{enumerate}
+
+\section{Wyniki}
+
+Dla każdego wariantu zostały wykonana seria przynajmniej 10 pomiarów. Z uzyskanych wyników usuwano te, które wpadły w wyjątkowo niekorzystne ekstrema lokalne. Wartość dopasowania jest średnią z tych pomiarów.\\
+
+\subsection{Wpływ mutacji i sposobu krzyżowania}
+
+Argumenty stałe dla tej sekcji badań:
+\begin{itemize}
+    \item[]
+    \begin{itemize}
+        \item \textbf{Warunek stopu:} 1000 epok,
+        \item \textbf{Funkcja celu:} $y=sin(x_1)cos(x_2),$
+        \item \textbf{Wartość minimalna:} -100,
+        \item \textbf{Wartość maksymalna:} 100,
+        \item \textbf{Wielkość populacji:} 50.
+    \end{itemize}
+\end{itemize}
+
+
+\begin{table}[H]
+\begin{tabular}{|l|l|l|l|c|}
+\hline
+           & \multicolumn{1}{c|}{\textbf{Krzyżowanie}} & \multicolumn{1}{c|}{\textbf{Mutacja}} & \multicolumn{1}{c|}{\textbf{Selekcja}} & \textbf{Dopasowanie} \\ \hline
+\textbf{1} & Uniform                                   & Flip Bit                              & Elite                                  & 0,831                \\ \hline
+\textbf{2} & Uniform                                   & Flip Bit                              & Roulette Wheel                         & 0,862                \\ \hline
+\textbf{3} & Uniform                                   & Reverse Sequence                      & Elite                                  & 0,963                \\ \hline
+\textbf{4} & Uniform                                   & Reverse Sequence                      & Roulette Wheel                         & 0,872                \\ \hline
+\textbf{5} & Three Parent                              & Flip Bit                              & Elite                                  & 0,981                \\ \hline
+\textbf{6} & Three Parent                              & Flip Bit                              & Roulette Wheel                         & 0,813                \\ \hline
+\textbf{7} & Three Parent                              & Reverse Sequence                      & Elite                                  & 0,971                \\ \hline
+\textbf{8} & Three Parent                              & Reverse Sequence                      & Roulette Wheel                         & 0,825                \\ \hline
+\end{tabular}
+\caption{Porównanie wpływu krzyżowania, mutacji oraz selekcji dla algorytmu SGA}
+\label{tab:calc1}
+\end{table}
+
+
+\begin{table}[H]
+\begin{tabular}{|l|l|l|l|c|}
+\hline
+           & \multicolumn{1}{c|}{\textbf{Krzyżowanie}} & \multicolumn{1}{c|}{\textbf{Mutacja}} & \multicolumn{1}{c|}{\textbf{Selekcja}} & \textbf{Dopasowanie} \\ \hline
+\textbf{9} & Uniform                                   & Flip Bit                              & Elite                                  & 0,844                \\ \hline
+\textbf{10} & Uniform                                   & Flip Bit                              & Roulette Wheel                         & 0,827                \\ \hline
+\textbf{11} & Uniform                                   & Reverse Sequence                      & Elite                                  & 0,968                \\ \hline
+\textbf{12} & Uniform                                   & Reverse Sequence                      & Roulette Wheel                         & 0,951                \\ \hline
+\textbf{13} & Three Parent                              & Flip Bit                              & Elite                                  & 0,983                \\ \hline
+\textbf{14} & Three Parent                              & Flip Bit                              & Roulette Wheel                         & 0,884                \\ \hline
+\textbf{15} & Three Parent                              & Reverse Sequence                      & Elite                                  & 0,991                \\ \hline
+\textbf{16} & Three Parent                              & Reverse Sequence                      & Roulette Wheel                         & 0,899                \\ \hline
+\end{tabular}
+\caption{Porównanie wpływu krzyżowania, mutacji oraz selekcji dla algorytmu One-fifth-rule}
+\label{tab:calc2}
+\end{table}
+
+
+\subsubsection*{Dyskusja}
+Użycie krzyżowania \textit{Uniform} negatywnie wpłynęło na dopasowanie - niezależnie od algorytmu czy mutacji. Podobnie miała się sprawa z selekcją ruletki, która poza słabszymi wynikami, miała wyjątkową tendencję do wpadania w niekorzystne ekstrema lokalne. Wariantem o najwyższym (czyli najlepszym) wyniku dopasowania dla algorytmu \textit{One-fifth-tule} okazał się wariant z krzyżowaniem \textit{Three Parent}, mutacją \textit{Reverse Sequence}, oraz selekcją \textit{Elite}. Dla algorytmu \textit{SGA} najlepszym wariantem okazał się ten z krzyżowaniem \textit{Three Parent}, mutacją \textit{Flip Bit} oraz selekcją \textit{Elite}. To właśnie te parametry wykorzystamy w dalszej części badań.
+
+\subsection{Porównanie działania dla różnych funkcji celu}
+
+Argumenty stałe dla tej sekcji badań:
+\begin{itemize}
+    \item[]
+    \begin{itemize}
+        \item \textbf{Krzyżowanie:} Three Parent Crossover,
+        \item \textbf{Selekcja:} Elite Selection,
+        \item \textbf{Warunek stopu:} 1000 epok,
+        \item \textbf{Wartość minimalna:} -100,
+        \item \textbf{Wartość maksymalna:} 100,
+        \item \textbf{Wielkość populacji:} 50.
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|c|}
+\hline
+             & \textbf{Algorytm} & \textbf{Mutacja}  & \textbf{Dopasowanie} \\ \hline
+\textbf{17} & SGA                & Flip Bit          & 0,981                \\ \hline
+\textbf{18} & One-fifth-rule     & Reverse Sequence  & 0,991                \\ \hline
+\end{tabular}
+\caption{Porównanie wyników dla pierwszej funkcji celu}
+\label{tab:calc3}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|c|}
+\hline
+             & \textbf{Algorytm} & \textbf{Mutacja}  & \textbf{Dopasowanie} \\ \hline
+\textbf{19} & SGA               & Flip Bit          & 82,946               \\ \hline
+\textbf{20} & One-fifth-rule    &  Reverse Sequence & 84,344               \\ \hline
+\end{tabular}
+\caption{Porównanie wyników dla drugiej funkcji celu}
+\label{tab:calc4}
+\end{table}
+
+\subsubsection*{Dyskusja}
+
+Dla obu porównywanych przez nas funkcji celu algorytm \textbf{One-fifth-rule} wykazał lepsze średnie dopasowanie od SGA. To właśnie ten algorytm wykorzystamy w ostatniej części badań.
+
+
+\subsection{Porównanie działania w zależności od jego parametrów}
+
+Argumenty stałe dla tej sekcji badań:
+\begin{itemize}
+    \item[]
+    \begin{itemize}
+        \item \textbf{Algorytm:} One-fifth-rule,
+        \item \textbf{Krzyżowanie:} Three Parent Crossover,
+        \item \textbf{Mutacja:} Reverse Sequence Mutation,
+        \item \textbf{Selekcja:} Elite Selection,
+        \item \textbf{Funkcja celu:} $y=sin(x_1)cos(x_2),$
+        \item \textbf{Wartość minimalna:} -100,
+        \item \textbf{Wartość maksymalna:} 100.
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|c|}
+\hline
+            & \multicolumn{1}{c|}{\textbf{Populacja}} & \multicolumn{1}{c|}{\textbf{Liczba epok}} & \textbf{Dopasowanie} \\ \hline
+\textbf{21} & 25                                      & 500                                       & 0,925                \\ \hline
+\textbf{22} & 25                                      & 1000                                      & 0,927                \\ \hline
+\textbf{23} & 25                                      & 2000                                      & 0,98                 \\ \hline
+\textbf{23} & 50                                      & 500                                       & 0,978                \\ \hline
+\textbf{25} & 50                                      & 1000                                      & 0,991                \\ \hline
+\textbf{26} & 50                                      & 2000                                      & 0,985                \\ \hline
+\textbf{27} & 100                                     & 500                                       & 0,982                \\ \hline
+\textbf{28} & 100                                     & 1000                                      & 0,99                 \\ \hline
+\textbf{29} & 100                                     & 2000                                      & 0,992                \\ \hline
+\end{tabular}
+\caption{Porównanie dopasowania w zależności od populacji oraz liczby epok}
+\label{tab:calc5}
+\end{table}
+
+\subsubsection*{Dyskusja}
+
+Zmiana populacji oraz liczby epok w znaczącym stopniu nie wpływa na wynik dopasowania - jedynie zmniejszenie populacji wpływa na zauważalne pogorszenie wyników. Zwiększenie liczby epok nie koniecznie musi oznaczać lepsze dopasowanie.
+
+
+\section{Wnioski}
+
+\begin{itemize}
+    \item Bardzo ważne jest dopranie odpowiedniego sposobu krzyżowania, mutacji oraz selekcji, przez co możemy poprawić wyniki algorytmu.
+    \item Dodatkowe modyfikacje algorytmu w czasie jego działania, takie jak reguła 1/5 sukcesu, pozytywnie wpływają na algorytm optymalizacyjny.
+    \item Nie ma potrzeby dopierania nieskończenie dużej wielkości populacji czy liczby epok potrzebnych do ukończenia procesu optymalizacyjnego, gdyż nie wpłynie to znacząco na wyniki, a może wydłużyć czas działania algorytmu.
+\end{itemize}
+
+\begin{thebibliography}{0}
+    \bibitem{GeneticSharp}
+    \textsl{GeneticSharp, \url{https://github.com/giacomelli/GeneticSharp}}
+    
+    \bibitem{FunctionOptimazation}
+    \textsl{Function optimization with GeneticSharp, \url{http://diegogiacomelli.com.br/function-optimization-with-geneticsharp/}}
+
+\end{thebibliography}
+
+
+\end{document}
