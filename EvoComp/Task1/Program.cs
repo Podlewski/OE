@@ -60,7 +60,7 @@ namespace Zad1
         {
             // Args
 
-            int crossover, mutation, geneticAlgorithmChoice, selection, termination, function;
+            int crossover, mutation, geneticAlgorithmChoice, selection, termination, function, populationNumber = 50;
             float terminationValue, minValue, maxValue;
             if (args.Length != 0)
             {
@@ -73,6 +73,7 @@ namespace Zad1
                 function = int.Parse(args[6]);
                 minValue = float.Parse(args[7]);
                 maxValue = float.Parse(args[8]);
+                populationNumber = int.Parse(args[9]);
             }
             else
             {
@@ -139,6 +140,10 @@ namespace Zad1
                 minValue = float.Parse(Console.ReadLine());
                 Console.Write("Max value: ");
                 maxValue = float.Parse(Console.ReadLine());
+
+                Console.Clear();
+                Console.Write("Enter population: ");
+                populationNumber = int.Parse(Console.ReadLine());
             }
 
             //Prepare
@@ -150,7 +155,7 @@ namespace Zad1
 
             var chromosome = new FloatingPointChromosome(minValues, maxValues, totalBits, fractionDigits);
 
-            var population = new Population(50, 50, chromosome);
+            var population = new Population(populationNumber, populationNumber, chromosome);
 
             var fitness = new FuncFitness((c) =>
             {
@@ -181,6 +186,7 @@ namespace Zad1
             Console.Clear();
             Console.WriteLine("RESULT" +
                 "\n\nGenerations: " + geneticAlgorithm.GenerationsNumber +
+                "\nPopulation: " + populationNumber +
                 "\nRange:       " + minValue + ", " + maxValue +
                 "\n\nx1:      " + finalPhenotype[0] +
                 "\nx2:      " + finalPhenotype[1] +
