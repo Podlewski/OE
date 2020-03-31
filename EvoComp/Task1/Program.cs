@@ -8,6 +8,7 @@ using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using System;
 using Task1;
+using Task1.Strategies;
 
 namespace Zad1
 {
@@ -164,6 +165,11 @@ namespace Zad1
             {
                 Termination = ParseTermination(termination, terminationValue)
             };
+
+            if (geneticAlgorithmChoice == 2)
+            {
+                geneticAlgorithm.GenerationRan += new OneFifthSuccess().Handle;
+            }
 
             geneticAlgorithm.Start();
 
