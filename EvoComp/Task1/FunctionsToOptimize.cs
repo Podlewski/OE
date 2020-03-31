@@ -19,9 +19,22 @@ namespace Task1
             return SineTimesCosine(x1, x2) + x1 * x1 + x2 * x2;
         }
 
-        public static double Square(float x1)
+        public static double Square(double x1)
         {
             return x1 * x1;
+        }
+
+        public static double Choose(int n, double x1, double x2)
+        {
+            return n switch
+            {
+                1 => SineTimesCosine(x1, x2),
+                2 => SineTimesCosinePlusArguments(x1, x2),
+                3 => SineTimesCosinePlusSquareOfArguments(x1, x2),
+                4 => Square(x1),
+                _ => throw new ArgumentException(),
+            };
+
         }
     }
 }

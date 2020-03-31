@@ -1,13 +1,20 @@
-﻿using GeneticSharp.Domain.Crossovers;
+﻿using GeneticSharp.Domain;
+using GeneticSharp.Domain.Chromosomes;
+using GeneticSharp.Domain.Crossovers;
+using GeneticSharp.Domain.Fitnesses;
 using GeneticSharp.Domain.Mutations;
+using GeneticSharp.Domain.Populations;
 using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using System;
+using Task1;
 
 namespace Zad1
 {
     class Program
     {
+        const int NUMBER_OF_BITS = 2 * 8 * sizeof(float);
+
         public static ICrossover ParserCrossover(int n)
         {
             return n switch
@@ -51,11 +58,13 @@ namespace Zad1
 
         static void Main(string[] args)
         {
-            int crossover, mutation, geneticAlgorithm, selection, termination, function;
+            // Args
+
+            int crossover, mutation, geneticAlgorithmChoice, selection, termination, function;
             float terminationValue, lowerBound, upperBound;
             if (args.Length != 0)
             {
-                geneticAlgorithm = int.Parse(args[0]);
+                geneticAlgorithmChoice = int.Parse(args[0]);
                 crossover = int.Parse(args[1]);
                 mutation = int.Parse(args[2]);
                 selection = int.Parse(args[3]);
@@ -67,11 +76,12 @@ namespace Zad1
             }
             else
             {
+                //todo: implement
                 Console.Clear();
                 Console.WriteLine("Choose genetic algorithm variant" +
                     "\n[1] Simple" +
                     "\n[2] Adaptive");
-                geneticAlgorithm = int.Parse(Console.ReadLine());
+                geneticAlgorithmChoice = int.Parse(Console.ReadLine());
 
                 Console.Clear();
                 Console.WriteLine("Choose crossover method:" +
@@ -102,6 +112,7 @@ namespace Zad1
                     );
                 selection = int.Parse(Console.ReadLine());
 
+                //todo: rozważyć xD
                 Console.Clear();
                 Console.WriteLine("Choose termination method:" +
                     //"\n[1] Fitness Stagnation" +
@@ -111,8 +122,16 @@ namespace Zad1
                 termination = int.Parse(Console.ReadLine());
 
                 Console.Clear();
-                Console.WriteLine("Enter value:");
-                terminationValue = float.Parse(Console.ReadLine());
+                if(termination == 2)
+                {
+                    Console.WriteLine("Enter Generation Number:");
+                    terminationValue = float.Parse(Console.ReadLine());
+                }
+                else
+                {
+                    Console.WriteLine("Enter Fitness Threshold:");
+                    terminationValue = float.Parse(Console.ReadLine());
+                }                
 
                 Console.Clear();
                 Console.WriteLine("Choose function:" +
@@ -128,8 +147,54 @@ namespace Zad1
                 lowerBound = float.Parse(Console.ReadLine());
                 Console.Write("upper bound = ");
                 upperBound = float.Parse(Console.ReadLine());
-
             }
+
+            //Prepare
+            var chromosome = new FloatingPointChromosome(lowerBound, upperBound, NUMBER_OF_BITS, 2);
+
+            var population = new Population(50, 70, chromosome);
+
+            var fitness = new FuncFitness((c) =>
+            {
+                var fc = c as FloatingPointChromosome;
+
+                var values = fc.ToFloatingPoints();
+                var x1 = values[0];
+                var x2 = 0.0;
+                if(function != 4) x2 = values[1];
+
+                return FunctionsToOptimize.Choose(function, x1, x2);
+            });
+
+            var geneticAlgorithm = new GeneticAlgorithm(population, fitness, ParseSelection(selection), ParserCrossover(crossover), ParseMutation(mutation))
+            {
+                //Termination = ParseTermination(termination, terminationValue)
+            };
+
+            //Run
+
+            geneticAlgorithm.Start();
+
+            var finalPhenotype = (geneticAlgorithm.BestChromosome as FloatingPointChromosome).ToFloatingPoints();
+
+            var finalVariableValues = "Parameters:";
+            //for (int i = 0; i < parameters.Variables.Length; i++)
+            //{
+            //    finalVariableValues += "\n" + parameters.Variables[i] + " = " + finalPhenotype[i];
+            //}
+
+            var finalFitness = (geneticAlgorithm.BestChromosome as FloatingPointChromosome).Fitness.Value;
+
+            Console.WriteLine("\n\n- - - Final result: - - -" +
+                "\nNumber of generations: " + geneticAlgorithm.GenerationsNumber +
+                "\n\nFitness: " + finalFitness +
+                "\n\n" + finalVariableValues +
+                "\n\nRange: " + lowerBound + ", " + upperBound
+                //"\n\nf(" + String.Join(", ", parameters.Variables) + ") = " + parameters.Expression + " = " + (-finalFitness)
+                );
+
+            Console.ReadKey();
+
         }
     }
 }
