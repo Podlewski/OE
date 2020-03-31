@@ -60,7 +60,7 @@ namespace Zad1
             // Args
 
             int crossover, mutation, geneticAlgorithmChoice, selection, termination, function;
-            float terminationValue, lowerBound, upperBound;
+            float terminationValue, minValue, maxValue;
             if (args.Length != 0)
             {
                 geneticAlgorithmChoice = int.Parse(args[0]);
@@ -70,78 +70,84 @@ namespace Zad1
                 termination = int.Parse(args[4]);
                 terminationValue = float.Parse(args[5]);
                 function = int.Parse(args[6]);
-                lowerBound = float.Parse(args[7]);
-                upperBound = float.Parse(args[8]);
+                minValue = float.Parse(args[7]);
+                maxValue = float.Parse(args[8]);
             }
             else
             {
                 //todo: implement genetic algorithm variant
                 Console.Clear();
-                Console.WriteLine("Choose genetic algorithm variant" +
-                                    "\n[1] Simple" +
-                                    "\n[2] Adaptive");
+                Console.Write("Choose genetic algorithm variant" +
+                                "\n[1] Simple" +
+                                "\n[2] Adaptive" +
+                                "\n\nChoise: ");
                 geneticAlgorithmChoice = int.Parse(Console.ReadLine());
 
                 Console.Clear();
-                Console.WriteLine("Choose crossover method:" +
-                                    "\n[1] Uniform" +
-                                    "\n[2] Three Parent");
+                Console.Write("Choose crossover method:" +
+                                "\n[1] Uniform" +
+                                "\n[2] Three Parent" +
+                                "\n\nChoise: ");
                 crossover = int.Parse(Console.ReadLine());
 
                 Console.Clear();
-                Console.WriteLine("Choose mutation method:" +
-                                    "\n[1] Flip Bit" +
-                                    "\n[2] Reverse Sequence");
+                Console.Write("Choose mutation method:" +
+                                "\n[1] Flip Bit" +
+                                "\n[2] Reverse Sequence" +
+                                "\n\nChoise: ");
                 mutation = int.Parse(Console.ReadLine());
 
                 Console.Clear();
-                Console.WriteLine("Choose selection method" +
-                                    "\n[1] Elite" +
-                                    "\n[2] Roulette Wheel");
+                Console.Write("Choose selection method" +
+                                "\n[1] Elite" +
+                                "\n[2] Roulette Wheel" +
+                                "\n\nChoise: ");
                 selection = int.Parse(Console.ReadLine());
 
                 Console.Clear();
-                Console.WriteLine("Choose termination method:" +
-                                    "\n[2] Generation Number" +
-                                    "\n[4] Fitness Threshold");
+                Console.Write("Choose termination method:" +
+                                "\n[1] Generation Number" +
+                                "\n[2] Fitness Threshold" +
+                                "\n\nChoise: ");
                 termination = int.Parse(Console.ReadLine());
 
                 Console.Clear();
                 if(termination == 2)
                 {
-                    Console.WriteLine("Enter Generation Number:");
+                    Console.Write("Enter Generation Number: ");
                     terminationValue = float.Parse(Console.ReadLine());
                 }
                 else
                 {
-                    Console.WriteLine("Enter Fitness Threshold:");
+                    Console.Write("Enter Fitness Threshold: ");
                     terminationValue = float.Parse(Console.ReadLine());
                 }                
 
                 Console.Clear();
-                Console.WriteLine("Choose function:" +
-                                    "\n[1] sin(x1)*cos(x2)" +
-                                    "\n[2] sin(x1)*cos(x2) + x1 + x2" +
-                                    "\n[3] sin(x1)*cos(x2) + x1^2 + x2^2" +
-                                    "\n[4] x^2");
+                Console.Write("Choose function:" +
+                                "\n[1] sin(x1)*cos(x2)" +
+                                "\n[2] sin(x1)*cos(x2) + x1 + x2" +
+                                "\n[3] sin(x1)*cos(x2) + x1^2 + x2^2" +
+                                "\n[4] x1^x2" +
+                                "\n\nChoise: ");
                 function = int.Parse(Console.ReadLine());
 
                 Console.Clear();
-                Console.Write("\nEnter range:" +
-                                "\nlower bound = ");
-                lowerBound = float.Parse(Console.ReadLine());
-                Console.Write("upper bound = ");
-                upperBound = float.Parse(Console.ReadLine());
+                Console.Write("Enter range" +
+                                "\nMin value: ");
+                minValue = float.Parse(Console.ReadLine());
+                Console.Write("Max value: ");
+                maxValue = float.Parse(Console.ReadLine());
             }
 
             //Prepare
 
-            double[] a = { lowerBound, lowerBound };
-            double[] b = { upperBound, upperBound };
-            int[] c = { NUMBER_OF_BITS, NUMBER_OF_BITS };
-            int[] d = { 0, 0 };
+            double[] minValues = { minValue, minValue };
+            double[] maxValues = { maxValue, maxValue };
+            int[] totalBits = { NUMBER_OF_BITS, NUMBER_OF_BITS };
+            int[] fractionDigits = { 0, 0 };
 
-            var chromosome = new FloatingPointChromosome(a, b, c, d);
+            var chromosome = new FloatingPointChromosome(minValues, maxValues, totalBits, fractionDigits);
 
             var population = new Population(50, 100, chromosome);
 
@@ -159,27 +165,18 @@ namespace Zad1
                 Termination = ParseTermination(termination, terminationValue)
             };
 
-            //Run
-
             geneticAlgorithm.Start();
 
             var finalPhenotype = (geneticAlgorithm.BestChromosome as FloatingPointChromosome).ToFloatingPoints();
-
-            //todo: prezentacja wyniku
-            var finalVariableValues = "Parameters:";
-            //for (int i = 0; i < parameters.Variables.Length; i++)
-            //{
-            //    finalVariableValues += "\n" + parameters.Variables[i] + " = " + finalPhenotype[i];
-            //}
-
             var finalFitness = (geneticAlgorithm.BestChromosome as FloatingPointChromosome).Fitness.Value;
 
-            Console.WriteLine("\n\n- - - Final result: - - -" +
-                "\nNumber of generations: " + geneticAlgorithm.GenerationsNumber +
-                "\n\nFitness: " + finalFitness +
-                "\n\n" + finalVariableValues +
-                "\n\nRange: " + lowerBound + ", " + upperBound
-                //"\n\nf(" + String.Join(", ", parameters.Variables) + ") = " + parameters.Expression + " = " + (-finalFitness)
+            Console.Clear();
+            Console.WriteLine("RESULT" +
+                "\n\nGenerations: " + geneticAlgorithm.GenerationsNumber +
+                "\nRange:       " + minValue + ", " + maxValue +
+                "\n\nx1:      " + finalPhenotype[0] +
+                "\nx2:      " + finalPhenotype[1] +
+                "\nFitness: " + finalFitness
                 );
 
             Console.ReadKey();
