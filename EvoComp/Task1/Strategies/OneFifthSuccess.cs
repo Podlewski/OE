@@ -1,8 +1,6 @@
 ﻿using GeneticSharp.Domain;
 using GeneticSharp.Domain.Chromosomes;
 using System;
-
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Task1.Strategies
@@ -32,7 +30,7 @@ namespace Task1.Strategies
             {
                 int successCounter = 0;
 
-                for(int i = fitnesses.Count - 1; i > fitnesses.Count - 11; i--)
+                for (int i = fitnesses.Count - 1; i > fitnesses.Count - 11; i--)
                 {
                     if (fitnesses[i] > fitnesses[i - 1])
                         successCounter++;
@@ -43,7 +41,6 @@ namespace Task1.Strategies
 
                 else
                     geneticAlgorithm.MutationProbability -= 0.82f;
-
             }
         }
     }
