@@ -150,25 +150,28 @@ namespace Zad1
             }
 
             //Prepare
-            var chromosome = new FloatingPointChromosome(lowerBound, upperBound, NUMBER_OF_BITS, 2);
 
-            var population = new Population(50, 70, chromosome);
+            double[] a = { lowerBound, lowerBound };
+            double[] b = { upperBound, upperBound };
+            int[] c = { 64, 64 };
+            int[] d = { 0, 0 };
+
+            var chromosome = new FloatingPointChromosome(a, b, c, d);
+
+            var population = new Population(50, 100, chromosome);
 
             var fitness = new FuncFitness((c) =>
             {
-                var fc = c as FloatingPointChromosome;
-
-                var values = fc.ToFloatingPoints();
+                var values = (c as FloatingPointChromosome).ToFloatingPoints();
                 var x1 = values[0];
-                var x2 = 0.0;
-                if(function != 4) x2 = values[1];
+                var x2 = values[1];
 
                 return FunctionsToOptimize.Choose(function, x1, x2);
             });
 
             var geneticAlgorithm = new GeneticAlgorithm(population, fitness, ParseSelection(selection), ParserCrossover(crossover), ParseMutation(mutation))
             {
-                //Termination = ParseTermination(termination, terminationValue)
+                Termination = ParseTermination(termination, terminationValue)
             };
 
             //Run
