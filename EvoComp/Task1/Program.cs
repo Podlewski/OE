@@ -77,7 +77,7 @@ namespace Zad1
             {
                 //todo: implement genetic algorithm variant
                 Console.Clear();
-                Console.Write("Choose genetic algorithm variant" +
+                Console.Write("Choose genetic algorithm variant:" +
                                 "\n[1] Simple" +
                                 "\n[2] Adaptive" +
                                 "\n\nChoise: ");
