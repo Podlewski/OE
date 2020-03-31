@@ -187,8 +187,6 @@ namespace Zad1
                 "\nCrossover: " + ParserCrossover(crossover).GetType().Name +
                 "\nMutation: " + ParseMutation(mutation).GetType().Name
                 );
-
-            Console.ReadKey();
         }
     }
 }
