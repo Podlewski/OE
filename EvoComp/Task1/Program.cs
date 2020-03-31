@@ -19,9 +19,8 @@ namespace Zad1
         {
             return n switch
             {
-                2 => new CutAndSpliceCrossover(),
-                3 => new CycleCrossover(),
-                7 => new ThreeParentCrossover(),
+                1 => new UniformCrossover(),
+                2 => new ThreeParentCrossover(),
                 _ => throw new ArgumentException(),
             };
         }
@@ -50,8 +49,8 @@ namespace Zad1
         {
             return n switch
             {
-                2 => new GenerationNumberTermination((int)x),
-                4 => new FitnessThresholdTermination(x),
+                1 => new GenerationNumberTermination((int)x),
+                2 => new FitnessThresholdTermination(x),
                 _ => throw new ArgumentException(),
             };
         }
@@ -76,49 +75,35 @@ namespace Zad1
             }
             else
             {
-                //todo: implement
+                //todo: implement genetic algorithm variant
                 Console.Clear();
                 Console.WriteLine("Choose genetic algorithm variant" +
-                    "\n[1] Simple" +
-                    "\n[2] Adaptive");
+                                    "\n[1] Simple" +
+                                    "\n[2] Adaptive");
                 geneticAlgorithmChoice = int.Parse(Console.ReadLine());
 
                 Console.Clear();
                 Console.WriteLine("Choose crossover method:" +
-                                    //"\n[1] Uniform" +
-                                    "\n[2] Cut and Splice" +
-                                    "\n[3] Cycle" +
-                                    //"\n[4] One Point" +
-                                    //"\n[5] Partially Mapped" +
-                                    //"\n[6] Postition Based" +
-                                    "\n[7] Three Parent");
+                                    "\n[1] Uniform" +
+                                    "\n[2] Three Parent");
                 crossover = int.Parse(Console.ReadLine());
 
                 Console.Clear();
                 Console.WriteLine("Choose mutation method:" +
-                        "\n[1] Flip Bit" +
-                        "\n[2] Reverse Sequence"
-                        //"\n[3] Twors" +
-                        //"\n[4] Uniform"
-                        );
+                                    "\n[1] Flip Bit" +
+                                    "\n[2] Reverse Sequence");
                 mutation = int.Parse(Console.ReadLine());
 
                 Console.Clear();
                 Console.WriteLine("Choose selection method" +
-                    "\n[1] Elite" +
-                    "\n[2] Roulette Wheel"
-                    //"\n[3] Stochastic Universal Sampling" +
-                    //"\n[4] Tournament"
-                    );
+                                    "\n[1] Elite" +
+                                    "\n[2] Roulette Wheel");
                 selection = int.Parse(Console.ReadLine());
 
-                //todo: rozważyć xD
                 Console.Clear();
                 Console.WriteLine("Choose termination method:" +
-                    //"\n[1] Fitness Stagnation" +
-                    "\n[2] Generation Number" +
-                    //"\n[3] Time Evolving" +
-                    "\n[4] Fitness Threshold");
+                                    "\n[2] Generation Number" +
+                                    "\n[4] Fitness Threshold");
                 termination = int.Parse(Console.ReadLine());
 
                 Console.Clear();
@@ -135,15 +120,15 @@ namespace Zad1
 
                 Console.Clear();
                 Console.WriteLine("Choose function:" +
-                    "\n[1] sin(x1)*cos(x2)" +
-                    "\n[2] sin(x1)*cos(x2) + x1 + x2" +
-                    "\n[3] sin(x1)*cos(x2) + x1^2 + x2^2" +
-                    "\n[4] x^2");
+                                    "\n[1] sin(x1)*cos(x2)" +
+                                    "\n[2] sin(x1)*cos(x2) + x1 + x2" +
+                                    "\n[3] sin(x1)*cos(x2) + x1^2 + x2^2" +
+                                    "\n[4] x^2");
                 function = int.Parse(Console.ReadLine());
 
                 Console.Clear();
                 Console.Write("\nEnter range:" +
-                        "\nlower bound = ");
+                                "\nlower bound = ");
                 lowerBound = float.Parse(Console.ReadLine());
                 Console.Write("upper bound = ");
                 upperBound = float.Parse(Console.ReadLine());
@@ -153,7 +138,7 @@ namespace Zad1
 
             double[] a = { lowerBound, lowerBound };
             double[] b = { upperBound, upperBound };
-            int[] c = { 64, 64 };
+            int[] c = { NUMBER_OF_BITS, NUMBER_OF_BITS };
             int[] d = { 0, 0 };
 
             var chromosome = new FloatingPointChromosome(a, b, c, d);
@@ -180,6 +165,7 @@ namespace Zad1
 
             var finalPhenotype = (geneticAlgorithm.BestChromosome as FloatingPointChromosome).ToFloatingPoints();
 
+            //todo: prezentacja wyniku
             var finalVariableValues = "Parameters:";
             //for (int i = 0; i < parameters.Variables.Length; i++)
             //{
@@ -197,7 +183,6 @@ namespace Zad1
                 );
 
             Console.ReadKey();
-
         }
     }
 }
