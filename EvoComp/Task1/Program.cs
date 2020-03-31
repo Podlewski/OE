@@ -150,7 +150,7 @@ namespace Zad1
 
             var chromosome = new FloatingPointChromosome(minValues, maxValues, totalBits, fractionDigits);
 
-            var population = new Population(50, 100, chromosome);
+            var population = new Population(50, 50, chromosome);
 
             var fitness = new FuncFitness((c) =>
             {
@@ -182,7 +182,10 @@ namespace Zad1
                 "\nRange:       " + minValue + ", " + maxValue +
                 "\n\nx1:      " + finalPhenotype[0] +
                 "\nx2:      " + finalPhenotype[1] +
-                "\nFitness: " + finalFitness
+                "\nFitness: " + finalFitness +
+                "\nSelection: " + ParseSelection(selection).GetType().Name +
+                "\nCrossover: " + ParserCrossover(crossover).GetType().Name +
+                "\nMutation: " + ParseMutation(mutation).GetType().Name
                 );
 
             Console.ReadKey();
