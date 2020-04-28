@@ -16,7 +16,7 @@ class ArgumentParser:
         self.parser.add_argument(metavar='ALGORITHM', dest='algorithm',
                                  type=int, choices=range(1, 4),
                                  help='Algorithm:\n  [1] NSGA-II'
-                                      '\n  [2] SPEA-II\n  [3] GDE-III')
+                                      '\n  [2] SPEA-II\n  [3] PESA-II')
 
         self.parser.add_argument(metavar='TEST_PROBLEM', dest='test_problem',
                                  type=int, choices=range(1, 4),
