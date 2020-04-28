@@ -35,6 +35,15 @@ class ArgumentParser:
                                  type=float, default=0.5,
                                  help='Probability (default 0.5)')
 
+        self.parser.add_argument('-e', dest='extra',
+                                 type=int, default=None,
+                                 help='Extra parameter (default None)')
+
+        self.parser.add_argument('--screen', dest='print_on_screen', 
+                                 action='store_const', const=True, default=False,
+                                 help='Print result also on screen (by default'
+                                      'results are saved to file)')
+
         self.args = self.parser.parse_args()
 
 
