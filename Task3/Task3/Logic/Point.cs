@@ -13,7 +13,7 @@
 
         public override string ToString()
         {
-            return $"{X}, {Y}";
+            return $"{X} {Y}";
         }
     }
 
@@ -23,16 +23,14 @@
         public double BestDistance { get; private set; }
         public int SecondAssignment { get; private set; }
         public double SecondDistance { get; private set; }
-        public bool Penalty { get; private set; }
 
         public PointResult(int bestAssignment, double bestDistance,
-            int secondAssignment, double secondDistance, bool penalty)
+            int secondAssignment, double secondDistance)
         {
             BestAssignment = bestAssignment;
             BestDistance = bestDistance;
             SecondAssignment = secondAssignment;
             SecondDistance = secondDistance;
-            Penalty = penalty;
         }
     }
 }

@@ -35,9 +35,8 @@ namespace Task3
 
         [Required]
         [Option("-f", ValueName = "FUNCTION", Description = "[REQUIRED] Select objective " +
-            "function: S (Silhouette), X (WIP) or M (mixed | WIP)")]
-        //[AllowedValues("S", "X", "M", IgnoreCase = true)]
-        [AllowedValues("S", IgnoreCase = true)]
+            "function: S (Silhouette), P (Penalty) or M (mixed)")]
+        [AllowedValues("S", "P", "M", IgnoreCase = true)]
         public string Function { get; }
 
         [Option("-f1", ValueName = "PERCENTAGE", Description = "Percentage of fitnesses for " +
@@ -50,9 +49,8 @@ namespace Task3
         [Range(typeof(float), "0,1", "0,9")]
         public double SecondFunctionPerctnage { get; } = 0.5f;
 
-        [Option("-d", ValueName = "DISTANCE", Description = "[UNUSED] Specify distance after " +
-            "which objective function charges fitness for given point with penalty" +
-            "(from 0,5 to 4,0 | by default: 1,5)")]
+        [Option("-d", ValueName = "DISTANCE", Description = "Specify distance for " +
+            "Penalty Coefficient (from 0,5 to 4,0 | by default: 1,5)")]
         [Range(typeof(float), "0,5", "4,0")]
         public double PenaltyDistance { get; } = 1.5;
 
@@ -106,11 +104,14 @@ namespace Task3
             Console.WriteLine("RUN SETTINGS:" +
                 $"\n  Generations: {geneticAlgorithm.GenerationsNumber}" +
                 $"\n  Population:  {Population}" +
+                $"\n  Function:    {function}" +
                 $"\n  Selection:   {(IsRoulette ? "Roulette Wheel" : "Elite")}" +
-                $"\n  Crossover:   {(IsThreeParent ? "Three Parent" : "Uniform")}");
+                $"\n  Crossover:   {(IsThreeParent ? "Three Parent" : $"Uniform ({UniformChance})")}" +
+                $"\n  Mutation:    <WIP>");
             Console.WriteLine("\nRUN RESULTS:" +
-                $"\n  Clusters: {bestChromose.Length}" +
-                $"\n  Fitness:  {Math.Round(bestChromose.Fitness.Value, 3)}");
+                $"\n  Fitness:   {Math.Round(bestChromose.Fitness.Value, 3)}" +
+                $"\n  Clusters:  {bestChromose.Length}" +
+                $"\n  Genes:     {bestChromose.ToDetailedString()}");
         }
     }
 }

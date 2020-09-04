@@ -11,19 +11,21 @@ namespace Task3
     public class ObjectiveFunction
     {
         private readonly string objectiveFunction;
-        private readonly double firstFitnessPercentage;
-        private readonly double secondFitnessPercentage;
-        private readonly double pentaltyDistance;
+        private readonly double firstFunctionPart;
+        private readonly double secondFunctionPart;
+        private double FirstFitnessPercentage => firstFunctionPart / (firstFunctionPart + secondFunctionPart);
+        private double SecondFitnessPercentage => secondFunctionPart / (firstFunctionPart + secondFunctionPart);
+
+        private readonly double penaltyDistance;
         private readonly double maxDistance;
 
-        public ObjectiveFunction(string code, double firstPercentage,
-            double secondPercentage, double distance)
+        public ObjectiveFunction(string code, double firstPart,
+            double secondPart, double distance)
         {
             objectiveFunction = code.ToUpper();
-            firstFitnessPercentage = firstPercentage / (firstPercentage + secondPercentage);
-            secondFitnessPercentage = secondPercentage / (firstPercentage + secondPercentage);
-            pentaltyDistance = distance;
-
+            firstFunctionPart = firstPart;
+            secondFunctionPart = secondPart;
+            penaltyDistance = distance;
             maxDistance = 200;
         }
 
@@ -34,8 +36,19 @@ namespace Task3
             return objectiveFunction switch
             {
                 "S" => GetSilhouetteCoefficient(results),
-                "X" => throw new NotImplementedException(),
+                "P" => GetPenaltyCoefficient(genes, results),
                 "M" => GetMixedFitness(genes, results),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public override string ToString()
+        {
+            return objectiveFunction switch
+            {
+                "S" => "Silhouette Coefficient",
+                "P" => "Penalty Coefficient",
+                "M" => $"Mixed: {firstFunctionPart}  {secondFunctionPart}",
                 _ => throw new NotImplementedException(),
             };
         }
@@ -78,8 +91,8 @@ namespace Task3
                     }
                 }
 
-                results.Add(new PointResult(bestCluster, bestDistance, secondCluster,
-                    secondDistance, bestDistance > pentaltyDistance));
+                results.Add(new PointResult(bestCluster, bestDistance,
+                    secondCluster, secondDistance));
             }
 
             return results;
@@ -107,55 +120,38 @@ namespace Task3
             return (secondMeanDistance - bestMeanDistance)/Math.Max(bestMeanDistance, secondMeanDistance);
         }
 
-
-
-        private double GetMixedFitness(Gene[] genes, List<PointResult> results)
+        private double GetPenaltyCoefficient(Gene[] genes, List<PointResult> results)
         {
-            //return firstFitnessPercentage * GetSilhouetteCoefficient(results) +
-            //    secondFitnessPercentage * GetFitnessB(results);
-
-            return firstFitnessPercentage * GetSilhouetteCoefficient(results);
-        }
-
-        #endregion
-
-
-        #region PureDistancesCounting
-
-        private double GetFitnessA(Gene[] genes, List<PointResult> results)
-        {
-            double totalAverageDistance = 0;
+            double totalPoints = 0;
 
             for (int i = 0; i < genes.Length; i++)
             {
-                double totalGeneDistance = 0;
-                int foundAssigments = 0;
+                double genePoints = results.Count;
 
                 for (int j = 0; j < results.Count; j++)
                 {
-                    if (results[j].BestAssignment == i)
+                    if (results[j].BestAssignment == (int)genes[i].Value &&
+                        results[j].BestDistance > penaltyDistance)
                     {
-                        foundAssigments++;
-                        totalGeneDistance += results[j].Penalty ?
-                            results[j].BestDistance * 2 : results[j].BestDistance;
+                        genePoints -= 0.7;
+                    }
+                    else if (results[j].BestAssignment != (int)genes[i].Value &&
+                             EuclideanDistance(Dataset[j], Dataset[(int)genes[i].Value]) < penaltyDistance)
+                    {
+                        genePoints -= 1.3;
                     }
                 }
 
-                totalAverageDistance = totalGeneDistance / foundAssigments;
+                totalPoints += (double) genePoints / results.Count;
             }
 
-            return totalAverageDistance / genes.Length;
+            return totalPoints / genes.Length;
         }
 
-        private double GetFitnessB(List<PointResult> results)
+        private double GetMixedFitness(Gene[] genes, List<PointResult> results)
         {
-            double totalDistance = 0;
-
-            for (int i = 0; i < results.Count; i++)
-                totalDistance += results[i].Penalty ?
-                    results[i].BestDistance * 2 : results[i].BestDistance;
-
-            return totalDistance / results.Count;
+            return FirstFitnessPercentage * GetSilhouetteCoefficient(results) +
+                SecondFitnessPercentage * GetPenaltyCoefficient(genes, results);
         }
 
         #endregion

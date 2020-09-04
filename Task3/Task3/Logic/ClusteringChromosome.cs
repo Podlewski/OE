@@ -105,5 +105,15 @@ namespace Task3
         {
             return $"{Length}: {string.Join(" ", _genes)}";
         }
+
+        public string ToDetailedString()
+        {
+            string result = "";
+
+            foreach (var gene in _genes)
+                result += Dataset[(int)gene.Value] + "     ";
+
+            return result.Trim();
+        }
     }
 }
