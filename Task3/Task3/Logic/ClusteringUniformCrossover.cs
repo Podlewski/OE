@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
 using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Crossovers;
 using GeneticSharp.Domain.Randomizations;
@@ -25,8 +25,11 @@ namespace Task3
             {
                 if (RandomizationProvider.Current.GetDouble() < MixProbability)
                 {
-                    firstChild.ReplaceGene(i, secondParent.GetGene(i));
-                    secondChild.ReplaceGene(i, firstParent.GetGene(i));
+                    if(!firstChild.GetGenes().Contains(secondParent.GetGene(i)))
+                        firstChild.ReplaceGene(i, secondParent.GetGene(i));
+
+                    if (!secondChild.GetGenes().Contains(firstParent.GetGene(i)))
+                        secondChild.ReplaceGene(i, firstParent.GetGene(i));
                 }
             }
 

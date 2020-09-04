@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;  
+﻿using System.Collections.Generic;
+using System.Linq;
 
 using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Crossovers;
@@ -22,7 +23,7 @@ namespace Task3
 
             for (int i = 0; i < parents[0].Length && i < parents[1].Length && i < parents[2].Length; i++)
             {
-                if (firstParentGenes[i] == secondParentGenes[i])
+                if (firstParentGenes[i] == secondParentGenes[i] && !child.GetGenes().Contains(firstParentGenes[i]))
                 {
                     child.ReplaceGene(i, firstParentGenes[i]);
                 }
