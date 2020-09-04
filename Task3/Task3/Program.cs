@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 
 using GeneticSharp.Domain;
 using GeneticSharp.Domain.Chromosomes;
@@ -19,7 +18,8 @@ namespace Task3
     {
         public const int MinClusters = 2;
         public const int MaxClusters = 8;
-        public const List<Point> Elements = null;
+        public static readonly List<Point> Dataset =
+            FileReader.ReadCsv(@"..\..\..\..\DataPreparer\ProcessedMallCustomers.csv");
     }
 
     public class Program
