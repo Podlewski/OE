@@ -100,5 +100,10 @@ namespace Task3
         {
             throw new NotImplementedException();
         }
+
+        public override string ToString()
+        {
+            return $"{Length}: {string.Join(" ", _genes)}";
+        }
     }
 }

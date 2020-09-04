@@ -25,11 +25,6 @@ namespace Task3
             {
                 if (RandomizationProvider.Current.GetDouble() < MixProbability)
                 {
-                    firstChild.ReplaceGene(i, firstParent.GetGene(i));
-                    secondChild.ReplaceGene(i, secondParent.GetGene(i));
-                }
-                else
-                {
                     firstChild.ReplaceGene(i, secondParent.GetGene(i));
                     secondChild.ReplaceGene(i, firstParent.GetGene(i));
                 }

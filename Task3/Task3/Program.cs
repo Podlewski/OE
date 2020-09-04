@@ -34,10 +34,26 @@ namespace Task3
         public int Population { get; }
 
         [Required]
-        [Option("-f", ValueName = "FUNCTION",
-            Description = "REQUIRED. Select objective function: A, B oraz MIXED.")]
-        [AllowedValues("A", "B", "MIXED", IgnoreCase = true)]
-        public string Function { get; } = "normal";
+        [Option("-f", ValueName = "FUNCTION", Description = "REQUIRED. Select objective " +
+            "function: S (Silhouette), X (WIP) oraz M (mixed | WIP).")]
+        //[AllowedValues("S", "X", "M", IgnoreCase = true)]
+        [AllowedValues("S", IgnoreCase = true)]
+        public string Function { get; }
+
+        [Option("-f1", ValueName = "PERCENTAGE", Description = "Percentage of fitnesses for " +
+            "first function in mixed objectives functions (from 0,1 to 0,9 | by default: 0.5)")]
+        [Range(typeof(float), "0,1", "0,9")]
+        public float FirstFunctionPerctnage { get; } = 0.5f;
+
+        [Option("-f2", ValueName = "PERCENTAGE", Description = "Percentage of fitnesses for " +
+            "second function in mixed objectives functions (from 0,1 to 0,9 |by default: 0.5)")]
+        [Range(typeof(float), "0,1", "0,9")]
+        public double SecondFunctionPerctnage { get; } = 0.5f;
+
+        [Option("-d", Description = "Specify distance after which objective function charges " +
+            "fitness for given point with penalty (from 0,5 to 4,0 | by default: 1,5)")]
+        [Range(typeof(float), "0,5", "4,0")]
+        public double PenaltyDistance { get; } = 1.5;
 
         [Option("-r", Description = "Use Roulette Wheel Selection instead of Elite Selection .")]
         public bool IsRoulette { get; } = false;
@@ -45,13 +61,13 @@ namespace Task3
         [Option("-t", Description = "Use Three Parent Crossover instead of Uniform Crossover.")]
         public bool IsThreeParent { get; } = false;
 
-        [Option("-u", ValueName = "CHANCE", Description = "Chance to uniform crossover" +
-            "(if '-tpc' is not specified), from 0,01 to 0,9, by default: 0,1.")]
+        [Option("-uc", ValueName = "CHANCE", Description = "Chance to uniform crossover" +
+            "if '-tpc' is not specified (from 0,01 to 0,9 | by default: 0,1)")]
         [Range(typeof(float), "0,01", "0,9")]
         public float UniformChance { get; } = 0.1f;
 
-        [Option("-m", ValueName = "CHANCE",
-            Description = "Chance to mutate, from 0,01 to 0,9, by default: 0,1.")]
+        [Option("-mc", ValueName = "CHANCE",
+            Description = "Chance to mutate (from 0,01 to 0,9 | by default: 0,1)")]
         [Range(typeof(float), "0,01", "0,9")]
         public float MutationChance { get; } = 0.1f;
 
@@ -61,12 +77,16 @@ namespace Task3
 
         private void OnExecute()
         {
+            ObjectiveFunction function = new ObjectiveFunction(Function, FirstFunctionPerctnage,
+                SecondFunctionPerctnage, PenaltyDistance);
+
             IChromosome chromosome = new ClusteringChromosome(Constants.Dataset.Count);
             IPopulation population = new Population(Population, Population, chromosome);
             IFitness fitness = new FuncFitness((c) =>
             {
                 var values = c.GetGenes();
-                return 0.1;
+                var a = function.CountFitness(values);
+                return a;
             });
             ISelection selection = IsRoulette ?
                 (ISelection) new RouletteWheelSelection() : new EliteSelection();
