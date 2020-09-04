@@ -12,6 +12,7 @@ using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using McMaster.Extensions.CommandLineUtils;
 
+
 namespace Task3
 {
     public static class Constants
@@ -60,17 +61,18 @@ namespace Task3
 
         private void OnExecute()
         {
-            IChromosome chromosome = new ClusteringChromosome(Population);
+            IChromosome chromosome = new ClusteringChromosome(Constants.Dataset.Count);
             IPopulation population = new Population(Population, Population, chromosome);
             IFitness fitness = new FuncFitness((c) =>
             {
                 var values = c.GetGenes();
-                return 0;
+                return 0.1;
             });
             ISelection selection = IsRoulette ?
                 (ISelection) new RouletteWheelSelection() : new EliteSelection();
             ICrossover crossover = IsThreeParent ?
-                (ICrossover) new ThreeParentCrossover() : new UniformCrossover(UniformChance);
+                (ICrossover) new ClusteringThreeParentCrossover() :
+                new ClusteringUniformCrossover(UniformChance);
             IMutation mutation = new ClusteringMutation();
 
             var geneticAlgorithm = new GeneticAlgorithm(population, fitness, selection, crossover, mutation)
@@ -80,13 +82,14 @@ namespace Task3
             geneticAlgorithm.Start();
 
             var bestChromose = geneticAlgorithm.BestChromosome as ClusteringChromosome;
-            Console.WriteLine("RESULT\n" +
-                $"\nGenerations: {geneticAlgorithm.GenerationsNumber}" +
-                $"\nPopulation: {Population}" +
-                $"\nSelection: {(IsRoulette ? "Roulette Wheel" : "Elite")}" +
-                $"\nCrossover: {(IsThreeParent ? "Three Parent" : "Uniform")}" +
-                $"\n\nClusters: {bestChromose.Fitness.Value}" +
-                $"\nFitness: {Math.Round(bestChromose.Fitness.Value, 3)}");
+            Console.WriteLine("RUN SETTINGS:" +
+                $"\n  Generations: {geneticAlgorithm.GenerationsNumber}" +
+                $"\n  Population:  {Population}" +
+                $"\n  Selection:   {(IsRoulette ? "Roulette Wheel" : "Elite")}" +
+                $"\n  Crossover:   {(IsThreeParent ? "Three Parent" : "Uniform")}");
+            Console.WriteLine("\nRUN RESULTS:" +
+                $"\n  Clusters: {bestChromose.Length}" +
+                $"\n  Fitness:  {Math.Round(bestChromose.Fitness.Value, 3)}");
         }
     }
 }
