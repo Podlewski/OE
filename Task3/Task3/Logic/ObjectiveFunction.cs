@@ -145,7 +145,7 @@ namespace Task3
                 totalPoints += (double) genePoints / results.Count;
             }
 
-            return totalPoints / genes.Length;
+            return (totalPoints * 2 / genes.Length) - 1;
         }
 
         private double GetMixedFitness(Gene[] genes, List<PointResult> results)
