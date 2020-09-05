@@ -5,7 +5,6 @@ using GeneticSharp.Domain.Chromosomes;
 
 using static Task3.Constants;
 
-
 namespace Task3
 {
     public class ObjectiveFunction
@@ -53,7 +52,6 @@ namespace Task3
             };
         }
 
-
         #region DistancesCounters
 
         public double EuclideanDistance(Point a, Point b)
@@ -99,7 +97,6 @@ namespace Task3
         }
 
         #endregion
-
 
         #region ClusteringMetrics
 

@@ -4,7 +4,6 @@ using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Crossovers;
 using GeneticSharp.Domain.Randomizations;
 
-
 namespace Task3
 {
     public class ClusteringUniformCrossover : UniformCrossover

@@ -4,7 +4,6 @@ using System.Linq;
 using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Crossovers;
 
-
 namespace Task3
 {
     public class ClusteringThreeParentCrossover : ThreeParentCrossover
