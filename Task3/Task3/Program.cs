@@ -12,7 +12,6 @@ using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using McMaster.Extensions.CommandLineUtils;
 
-
 namespace Task3
 {
     public static class Constants
@@ -70,7 +69,6 @@ namespace Task3
         [Range(typeof(float), "0,01", "0,9")]
         public float MutationChance { get; } = 0.1f;
 
-
         public static int Main(string[] args) =>
             CommandLineApplication.Execute<Program>(args);
 
@@ -107,7 +105,7 @@ namespace Task3
                 $"\n  Function:    {function}" +
                 $"\n  Selection:   {(IsRoulette ? "Roulette Wheel" : "Elite")}" +
                 $"\n  Crossover:   {(IsThreeParent ? "Three Parent" : $"Uniform ({UniformChance})")}" +
-                $"\n  Mutation:    <WIP>");
+                 "\n  Mutation:    Own mutation");
             Console.WriteLine("\nRUN RESULTS:" +
                 $"\n  Fitness:   {Math.Round(bestChromose.Fitness.Value, 3)}" +
                 $"\n  Clusters:  {bestChromose.Length}" +

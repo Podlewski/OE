@@ -2,10 +2,9 @@
 using System.Globalization;
 using System.IO;
 
-
 namespace Task3
 {
-    public class FileReader
+    public static class FileReader
     {
         public static List<Point> ReadCsv(string path)
         {

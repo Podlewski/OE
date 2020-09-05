@@ -8,7 +8,6 @@ using GeneticSharp.Domain.Randomizations;
 
 using static Task3.Constants;
 
-
 namespace Task3
 {
     public class ClusteringChromosome : IChromosome
@@ -98,7 +97,19 @@ namespace Task3
 
         public void Resize(int newLength)
         {
-            throw new NotImplementedException();
+            var length = _genes.Length;
+            if (newLength > length)
+            {
+                Array.Resize(ref _genes, newLength);
+                for (var i = length; i < newLength; i++)
+                {
+                    _genes[i] = new Gene(RandomizationProvider.Current.GetInt(_minIndex, _maxIndex));
+                }
+            }
+            else if (newLength < length)
+            {
+                Array.Resize(ref _genes, newLength);
+            }
         }
 
         public override string ToString()

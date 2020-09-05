@@ -1,8 +1,7 @@
-﻿using System;
-
-using GeneticSharp.Domain.Chromosomes;
+﻿using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Mutations;
-
+using GeneticSharp.Domain.Randomizations;
+using System;
 
 namespace Task3
 {
@@ -12,7 +11,20 @@ namespace Task3
 
         public void Mutate(IChromosome chromosome, float probability)
         {
-            //throw new NotImplementedException();
+            if (RandomizationProvider.Current.GetDouble() <= probability)
+            {
+                var clusteringChromosome = chromosome as ClusteringChromosome;
+
+                var length = chromosome.Length;
+                if (length < 4)
+                {
+                    clusteringChromosome.Resize(length + 1);
+                }
+                else if (length > 6)
+                {
+                    clusteringChromosome.Resize(length - 1);
+                }
+            }
         }
     }
 }
