@@ -133,19 +133,19 @@ namespace Task3
                     if (results[j].BestAssignment == (int)genes[i].Value &&
                         results[j].BestDistance > penaltyDistance)
                     {
-                        genePoints -= 0.7;
+                        genePoints -= 2;
                     }
                     else if (results[j].BestAssignment != (int)genes[i].Value &&
                              EuclideanDistance(Dataset[j], Dataset[(int)genes[i].Value]) < penaltyDistance)
                     {
-                        genePoints -= 1.3;
+                        genePoints -= 1;
                     }
                 }
 
                 totalPoints += (double) genePoints / results.Count;
             }
 
-            return (totalPoints * 2 / genes.Length) - 1;
+            return totalPoints / genes.Length;
         }
 
         private double GetMixedFitness(Gene[] genes, List<PointResult> results)
