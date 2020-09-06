@@ -1,0 +1,394 @@
+\documentclass{classrep}
+\usepackage[utf8]{inputenc}
+\frenchspacing
+
+\usepackage{graphicx}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[hidelinks]{hyperref}
+\usepackage{float}
+
+\usepackage{amsmath, amssymb, mathtools}
+
+\usepackage{fancyhdr, lastpage}
+\pagestyle{fancyplain}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\cfoot{\thepage\ / \pageref*{LastPage}}
+
+\renewcommand{\refname}{Bibliografia}
+
+% csharp cmd
+\newcommand{\Csharp}{%
+  {\settoheight{\dimen0}{C}C\kern-.05em \resizebox{!}{\dimen0}{\raisebox{\depth}{\# }}}}
+
+\studycycle{Informatyka stosowana, studia dzienne, II st.}
+\coursesemester{I}
+
+\coursename{Obliczenia ewolucyjne}
+\courseyear{2019/2020}
+
+\courseteacher{dr inż. Łukasz Chomątek}
+\coursegroup{środa, 14:00}
+
+\author{%
+  \\
+  \studentinfo[234067@edu.p.lodz.pl]{Bartosz Jurczewski}{234067}\\
+  \studentinfo[234106@edu.p.lodz.pl]{Karol Podlewski}{234106}%
+}
+
+\title{Zadanie 3: Klastrowanie przy pomocy algorytmu genetycznego}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancyplain}
+
+\clearpage
+
+\section{Cel}
+Celem zadania była implementacja algorytmu genetycznego rozwiązującego problem podziału zbioru danych na klastry - problemy do rozwiązania obejmowały dobranie funkcji celu, sposobu reprezentacji osobników, sposób selekcji, mutacji oraz krzyżowania. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  WPROWADZENIE
+\section{Opis zagadnienia na podstawie literatury}
+Odpowiednio dostosowany algorytm genetyczny może posłużyć jako nowe narzędzie w klasteryzacji. Algorytm operuje na populacji o liczebności \textbf{p}, a każdy z osobników poprzez swój chromosom reprezentuje przypisanie \textbf{x} punktów do \textbf{k} klastrów. Co nową generację, populacja przechodzi przez proces \textit{selekcji} (wybieramy najlepiej przystosowane osobniki do reprodukcji), a następnie ich genotypy są poddawane operatorom ewolucyjnym: \textit{krzyżowaniu} oraz \textit{mutacji}. Algorytm genetyczny dobiega końca kiedy osiąga warunek stopu, na przykład z góry określoną liczbę generacji. \cite{cluster} \cite{kmeans}
+
+\subsection{Kodowanie osobnika}
+Każdy osobnik ma swój własny chromosom który składa się z genów. W przypadku klasteryzacji, każdy z genów reprezentuje jeden z centrów klastra. Moc tego zbioru równa jest ilości klastrów. 
+
+Mając zbiór \textbf{k} punktów, możemy ułożyć je oraz oznaczyć indeksami od 0 do \textbf{k}. Gen musi przyjmować wartości z pewnego zbioru wartości dopuszczalnych czyli 0 do \textbf{k}.
+
+\subsection{Funkcja celu}
+Funkcja celu służy jako narzędzie do obliczenia poziomu przystosowania osobnika.
+Odpowiedni dobór funkcji celu jest jednym z zagadnień podczas tworzenia algorytmu genetycznego i ma bezpośrednie przełożenie na jakość wypracowanego rozwiązania.
+
+\subsection{Selekcja}
+Podczas każdego kolejnego pokolenia wybierana jest część istniejącej populacji do wyhodowania nowego pokolenia. Indywidualne osobniki są wybierane w procesie opartym na przystosowaniu, w którym wybierane są bardziej przystosowane osobniki (mierzone funkcją dopasowania). Niektóre metody selekcji oceniają przydatność każdego osobnika i preferencyjnie wybierają najlepsze rozwiązania. Inne metody oceniają tylko losową próbę populacji, ponieważ pierwszy proces może być bardzo czasochłonny. 
+
+Popularnymi metoda selekcji są strategia elitarności (ang. \textit{Elite Selection}) oraz metoda ruletki (ang. \textit{Roulette Wheel Selection}). \cite{selection}
+
+\subsection{Krzyżowanie}
+Krzyżowanie jest operatorem genetycznym używanym do zróżnicowania kodowania chromosomu z jednej generacji do kolejnej. Jest to analogiczne do rozmnażania i krzyżowania biologicznego, na którym oparte są algorytmy genetyczne. Krzyżowanie to proces polegający na pobieraniu rozwiązań z więcej niż jednego rodzica i tworzeniu od nich rozwiązania podrzędnego.
+
+\subsection{Mutacja}
+Mutacja jest operatorem genetycznym używanym do utrzymania różnorodności genetycznej od jednego pokolenia populacji chromosomów algorytmu genetycznego do następnego. Jest to analogiczne do mutacji biologicznej. Mutacja zmienia jedną lub więcej wartości genów w chromosomie ze stanu początkowego. W przypadku mutacji rozwiązanie może się całkowicie zmienić w stosunku do poprzedniego rozwiązania. Stąd algorytm genetyczny może dojść do lepszego rozwiązania poprzez użycie mutacji. Mutacja zachodzi podczas ewolucji zgodnie z prawdopodobieństwem mutacji definiowanym przez użytkownika. Prawdopodobieństwo to powinno być niskie. Jeśli jest ustawiony zbyt wysoko, wyszukiwanie zmieni się w wyszukiwanie losowe. 
+
+Celem mutacji jest zachowanie i wprowadzenie różnorodności. Mutacja powinna pozwolić algorytmowi na uniknięcie lokalnych minimów poprzez zapobieganie zbytniego podobieństwa populacji chromosomów do siebie, spowalniając w ten sposób lub nawet zatrzymując ewolucję. \cite{mutation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  OPIS IMPLEMENTACJI
+\section{Opis implementacji}
+
+Zadanie zostało zrealizowane przy użyciu frameworka \textit{.NET Core} w wersji 3.1, języka \textit{\Csharp}, z wykorzystaniem bibliotek: 
+\href{https://github.com/giacomelli/GeneticSharp}{
+\textit{GeneticSharp}} (algorytm genetyczny) oraz \href{https://github.com/natemcmaster/CommandLineUtils}{
+\textit{CommandLineUtils}} (przekazywanie argumentów z wiersza poleceń).
+
+Wykorzystany został zbiór danych \href{https://www.kaggle.com/shwetabh123/mall-customers}{
+\textit{MallCustomers.csv}}, który został zredukowany do dwóch wymiarów: jego cechy jakościowe zostały przekształcone w cechy ilościowe, następnie zbiór został znormalizowany oraz poddany analizie głównych składowych w celu redukcji wymiarów. Zbiór nie posiada z góry przypisanych klastrów, dlatego w celu ewaluacji poprawnego podziału można wykorzystać jedynie kryteria wewnętrzne.
+
+\subsection{Funkcje celu}
+
+W przygotowanym rozwiązaniu użytkownik może wybrać jedną z dwóch funkcji celu:
+
+\begin{enumerate}
+    \item \textbf{Współczynnik zarysu} (ang. \textit{Silhouette coefficient}) - obliczany jako średnia różnica między odległością do najbliższego oraz drugiego najbliższego skupienia podzielona przez większą z tych dwóch wartości. \cite{Silhouette}
+    \item \textbf{Współczynnik kary} -  autorski współczynnik, który ocenia dopasowanie w zależności od liczy punktów leżących bliżej niż podana odległość, a należących do innego klastra oraz punktów należących do danego klastra, które leżą dalej od podanej odległości. Szerokość kary dla danego punktu $x_{i}$ oraz danego klastra $c$ z podaną odległością $D$ wynosi: 
+    \begin{equation}
+        p(x_{i}, c, D) =
+        \begin{cases}
+            2 & \text{jeżeli}\ x_{i} \in c \ \text{oraz}\ d(x) > D \\
+            1 & \text{jeżeli}\ x_{i} \ni c \ \text{oraz}\ d(x) < D \\
+            0 & \text{w przeciwnym wypadku}
+        \end{cases}
+    \end{equation}
+    W celu obliczenia współczynnika kary dla odległości $D$ musimy wyliczyć średnią wartość współczynnika dla każdego klastra, którą obliczamy odejmując od liczby punktów sumę szerokości kary dla każdego punktu, co następnie dzielimy przez liczbę punktów: 
+    \begin{equation}
+         \text{Penalty}(D) = \text{mean}_{\ c \ \in \ C} \ \dfrac{|x| - \sum_{i=1}^{|x|} p(x_{i}, c, D)}{|x|}
+    \end{equation}
+    Współczynnik kary nakłada większą karę na punkty należące do klastra znajdujące się poza wyznaczoną odległością niż na punkty spoza klastra leżące bliżej niż podana odległość - chcemy w ten sprawić by algorytm nie promował zbyt dużych klastrów, ale wciąż miał na uwadze jak ważna jest integralność wewnątrz klastra.
+\end{enumerate}
+
+Wartości dopasowania dla każdej z tych funkcji mieszczą się w zakresie <-1, 1> - nie oznacza to jednak, że możemy bezpośrednio porównywać wyniki uzyskane jedną oraz drugą metodą.
+
+\subsection{Kodowanie oraz generacja populacji porządkowej}
+
+W zaproponowanym rozwiązaniu każdy chromosom składa się z określonej liczby genów (od 2 do 8) odpowiadającej liczbie klastrów. Każdy gen zawiera informacje o środku klastra w postaci identyfikatora numeru obserwacji. Podczas tworzenia chromosomu nie jest możliwe, by posiadał on dwa identyczne geny. Poszczególne obserwacje przypisywane są do klastrów w zależności od ich odległości - dana obserwacja należy do klastra, którego środek znajduje się najbliżej niej samej. 
+
+
+\subsection{Selekcja}
+
+W przygotowanym rozwiązaniu użytkownik może wybrać jedną z dwóch metod selekcji znanych z literatury:
+
+\begin{enumerate}
+    \item \textbf{Elite Selection} - wybiera najlepsze chromosomy pod względem dopasowania,
+    \item \textbf{Roulette Wheel Selection} - metoda koła ruletki, która polega na przypisaniu każdemu osobnikowi prawdopodobieństwa selekcji (im większe przystosowanie, tym większe prawdopodobieństwo), a następnie wylosowaniu chromosomów z całej puli.
+\end{enumerate}
+
+\subsection{Mutacja}
+
+W przygotowanym algorytmie wykorzystaliśmy \textbf{autorską mutację}. Zasada jej działania jest następująca: jeśli liczba klastrów jest większa niż 6, usuń jeden klaster. Jeśli jest mniejsza niż 4 dodaj jeden klaster.
+
+\subsection{Krzyżowanie}
+
+W przygotowanym rozwiązaniu użytkownik może wybrać jedną z dwóch metod krzyżowania znanych z literatury, ale dostosowanych do chromosomów o zmiennej liczbie genów:
+
+\begin{enumerate}
+    \item Modyfikacja \textbf{Uniform Crossover} - tworzone są dwie kopie losowych rodziców. Krzyżowanie następuje z prawdopodobieństwem zdefiniowanym przez użytkownika, a krzyżowanych jest tyle genów, ile posiada mniejszy z rodziców. Dłuższy rodzic przekazuje swoje niekrzyżowane geny jednemu potomkowi, dzięki czemu każde dziecko zawiera tyle samo genów co jeden z rodziców.
+    \item Modyfikacja \textbf{Three Parent Crossover} - selekcja, która polega na wybraniu trzech losowych rodziców - chromosom będzie miał tyle genów, ile genów ma trzeci z rodziców. Po kolei porównywany jest każdy gen pierwszego oraz drugiego rodzica - jeżeli jest identyczny, przechodzi on do potomstwa, jeżeli się różni - brany jest gen od trzeciego rodzica. W momencie, kiedy porównanie nie jest możliwe, ze względu na brak genów do porównania u któregokolwiek z rodziców, dalsze krzyżowanie jest przerwane, a nowy chromosom uzupełniany jest ostatnimi genami trzeciego z rodziców.
+\end{enumerate}
+
+Dodatkowo, krzyżowanie pojedynczych genów nie następuje, kiedy miałoby ono doprowadzić do posiadana przez chromosom dwóch identycznych genów. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  WYNIKI
+\section{Wyniki}
+Dla każdego wariantu zostały wykonana seria 5 pomiarów, z których w wynikach uwzględnia była wartość środkowa funkcji dopasowania.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Wpływ funkcji celu
+\subsection{Wpływ funkcji celu}
+
+Argumenty stałe dla tej sekcji badań:
+\begin{itemize}
+    \item[]
+    \begin{itemize}
+        \item \textbf{Wielkość populacji:} 1000.
+        \item \textbf{Ilość generacji:} 1000.
+        \item \textbf{Prawdopodobieństwo mutacji:} 0,1
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Porównanie funkcji celu - Współczynnik zarysu, dla różnych metod krzyżowania oraz selekcji.}
+\begin{tabular}{|l|l|c|c|}
+\hline
+\textbf{Krzyżowanie} & \textbf{Selekcja} & \multicolumn{1}{l|}{\textbf{Przystosowanie}} & \multicolumn{1}{l|}{\textbf{Liczba klastrów}} \\ \hline
+Uniform & Elite & 0,617 & 2 \\ \hline
+Uniform & Roulette Wheel & 0,590 & 2 \\ \hline
+Three Parent & Elite & 0,578 & 4 \\ \hline
+Three Parent & Roulette Wheel & 0,580 & 3 \\ \hline
+\end{tabular}
+
+\label{tab:calc1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Porównanie wpływu krzyżowania oraz selekcji dla funkcji celu - Współczynnik kary.}
+\begin{tabular}{|l|l|c|c|}
+\hline
+\textbf{Krzyżowanie} & \textbf{Selekcja} & \multicolumn{1}{l|}{\textbf{Przystosowanie}} & \multicolumn{1}{l|}{\textbf{Liczba klastrów}} \\ \hline
+Uniform & Elite & 0,975 & 4 \\ \hline
+Uniform & Roulette Wheel & 0,975 & 4 \\ \hline
+Three Parent & Elite & 0,938 & 4 \\ \hline
+Three Parent & Roulette Wheel & 0,975 & 4 \\ \hline
+\end{tabular}
+\label{tab:calc2}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Wpływ liczby generacji
+\subsection{Wpływ liczby generacji}
+
+Argumenty stałe dla tej sekcji badań:
+\begin{itemize}
+    \item[]
+    \begin{itemize}
+        \item \textbf{Wielkość populacji:} 50.
+        \item \textbf{Prawdopodobieństwo mutacji:} 0,1
+        \item \textbf{Krzyżowanie:} Uniform
+        \item \textbf{Selekcja:} Elite
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Wpływ liczby generacji na przystosowanie oraz liczbę klastrów dla autorskiej współczynnika zarysu}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Liczba generacji} & {\textbf{Przystosowanie}} & {\textbf{Liczba klastrów}} \\ \hline
+50 & 0,541 & 2 \\ \hline
+100 & 0,558 & 4 \\ \hline
+250 & 0,567 & 3 \\ \hline
+500 & 0,58 & 5 \\ \hline
+1000 & 0,586 & 4 \\ \hline
+2000 & 0,579 & 4 \\ \hline
+\end{tabular}
+\label{tab:calc3_1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Wpływ liczby generacji na przystosowanie oraz liczbę klastrów dla autorskiej funkcji celu.}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Liczba generacji} & {\textbf{Przystosowanie}} & {\textbf{Liczba klastrów}} \\ \hline
+50 & 0,912 & 4 \\ \hline
+100 & 0,892 & 4 \\ \hline
+250 & 0,909 & 5 \\ \hline
+500 & 0,924 & 4 \\ \hline
+1000 & 0,928 & 4 \\ \hline
+2000 & 0,939 & 4 \\ \hline
+\end{tabular}
+\label{tab:calc3_2}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Wpływ liczby populacji
+\subsection{Wpływ liczby populacji}
+
+Na podstawie wyników z poprzedniego punktu badania kontynuowaliśmy dla funkcji celu - Współczynnik kary. 
+
+Argumenty stałe dla tej sekcji badań:
+\begin{itemize}
+    \item[]
+    \begin{itemize}
+        \item \textbf{Liczba generacji:} 1000.
+        \item \textbf{Prawdopodobieństwo mutacji:} 0,1
+        \item \textbf{Krzyżowanie:} Uniform
+        \item \textbf{Selekcja:} Elite
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Wpływ liczby populacji na przystosowanie oraz liczbę klastrów dla współczynnika zarysu.}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Liczba populacji} & \multicolumn{1}{l|}{\textbf{Przystosowanie}} & \multicolumn{1}{l|}{\textbf{Liczba klastrów}} \\ \hline
+5                         &  0,55                                     & 4                                            \\ \hline
+10                        & 0,574                                     & 4                                            \\ \hline
+50                        & 0,548                                     & 4                                            \\ \hline
+100                       & 0,581                                     & 4                                            \\ \hline
+500                       & 0,608                                     & 2                                            \\ \hline
+1000                      & 0,587                                     & 2                                            \\ \hline
+\end{tabular}
+\label{tab:calc4_1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Wpływ liczby populacji na przystosowanie oraz liczbę klastrów dla autorskiej funkcji celu.}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Liczba populacji} & \multicolumn{1}{l|}{\textbf{Przystosowanie}} & \multicolumn{1}{l|}{\textbf{Liczba klastrów}} \\ \hline
+5                         & 0,788                                     & 6                                            \\ \hline
+10                        & 0,773                                     & 5                                            \\ \hline
+50                        & 0,908                                     & 4                                            \\ \hline
+100                       & 0,967                                     & 4                                            \\ \hline
+500                       & 0,972                                     & 4                                            \\ \hline
+1000                      & 0,975                                     & 4                                            \\ \hline
+\end{tabular}
+\label{tab:calc4_2}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Wpływ prawdopodobieństwa mutacji
+\subsection{Wpływ prawdopodobieństwa mutacji}
+
+
+Argumenty stałe dla tej sekcji badań:
+\begin{itemize}
+    \item[]
+    \begin{itemize}
+        \item \textbf{Wielkość populacji:} 1000.
+        \item \textbf{Liczba generacji:} 1000.
+        \item \textbf{Krzyżowanie:} Uniform
+        \item \textbf{Selekcja:} Elite
+    \end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Wpływ prawdopodobieństwa mutacji na przystosowanie oraz liczbę klastrów dla współczynnika zarysu.}
+\begin{tabular}{|p{4.5cm}|c|c|}
+\hline
+\textbf{Prawdopodobieństwo mutacji} & {\textbf{Przystosowanie}} & {\textbf{Liczba klastrów}} \\ \hline
+0,05 & 0,611 & 2 \\ \hline
+0,1 & 0,585 & 3 \\ \hline
+0,2 & 0,608 & 2 \\ \hline
+0,5 & 0,606 & 2 \\ \hline
+0,8 & 0,611 & 2 \\ \hline
+0,9 & 0,616 & 2 \\ \hline
+\end{tabular}
+\label{tab:calc5_1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Wpływ prawdopodobieństwa mutacji na przystosowanie oraz liczbę klastrów dla autorskiej funkcji celu.}
+\begin{tabular}{|p{4.5cm}|c|c|}
+\hline
+\textbf{Prawdopodobieństwo mutacji} & {\textbf{Przystosowanie}} & {\textbf{Liczba klastrów}} \\ \hline
+0,05 & 0,975 & 4 \\ \hline
+0,1 & 0,975 & 4 \\ \hline
+0,2 & 0,975 & 4 \\ \hline
+0,5 & 0,975 & 4 \\ \hline
+0,8 & 0,975 & 4 \\ \hline
+0,9 & 0,972 & 4 \\ \hline
+\end{tabular}
+\label{tab:calc5_2}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Dyskusja
+\clearpage
+\section{Dyskusja}
+
+Przeprowadzone przez nas badanie wykazało, że zastosowanie krzyżowania \textit{Uniform} było korzystne dla obydwu funkcji celu. Wybór metody selekcji nie miał żadnego wpływu na przystosowanie dla autorskiej funkcji celu. Zastosowanie krzyżowania \textit{Uniform} korzystnie wpłynęło za to na wyniki uzyskane przy wykorzystaniu współczynnika zarysu jako funkcji celu. Różnice te jednak są niewielkie i przy wykorzystaniu innego zbioru danych wykorzystanie krzyżowania \textit{Three Parent} czy selekcji \textit{Roulette Wheel} może korzystanie wpłynąć na wartość dopasowania.
+
+Badania dotyczące wpływu liczby generacji jasno pokazały, że sukcesywne zwiększanie liczby generacji zwiększa wartość przystosowania. Jednocześnie liczba klastrów pozostała bez zmian. Porównując badanie dla 50 oraz 2000 generacji, można zauważyć kilku procentowy wzrost. Należy jednak podkreślić że zwiększanie liczby generacji wpływa na wydłużenie czasu pracy programu.
+
+Kolejna sekcja pokazuje wpływ liczby populacji na przystosowanie oraz liczby klastrów. Jednoznacznie wartości 5 oraz 10 skutkowały w zadowalającym przystosowaniu (ok. 0,7). Wartość 50 zwiększyła przystosowanie do około 0,9, jednakże to wartości od 100 w górę pozwoliły osiągnąć pułap przystosowania na poziomie 0,97. Równocześnie liczba klastrów od poziomu przystosowania 0,9 pozostała bez większych zmian - dla współczynnika zarysu zazwyczaj 2, dla współczynnika kary zazwyczaj 4.
+
+Ostatnią sekcją badań była ocena naszej autorskiej mutacji. Dane jasne pokazują brak jakiekolwiek wpływu na przystosowanie oraz liczbę klastrów. Jej obecność była obojętna, nawet dla prawdopodobieństwa mutacji rzędu 0,9 - tak wysoka mutacja jedynie lekko obniżała przystosowanie.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Wnioski
+\section{Wnioski}
+
+\begin{itemize}
+    \item Wykorzystanie znanych z literatury metod selekcji i krzyżowania nie ma znaczącego wpływu dla przystosowania w klastrowaniu za pomocą algorytmów genetycznych w wykorzystanym przez nas zbiorze.
+    \item Zwiększenie liczby generacji zwiększa wartość przystosowania, przy jednoczesnym wydłużeniu czasu pracy programu.
+    \item Zwiększanie liczby populacji  również zwiększa wartość przystosowania.
+    \item Zwiększanie liczby populacji oraz generacji od pewnego momentu nieznacznie wpływa na uzyskane wyniki, znacznie wpływając na czas potrzeby do zakończenia działania algorytmu genetycznego.
+    \item Zastosowana przez nas mutacja nie ma żadnego wpływu na proces klastrowania.
+
+\end{itemize}
+
+\newpage
+
+\nocite{*}
+\begin{thebibliography}{0}
+    \bibitem{cluster}
+    \textsl{A genetic algorithm approach to cluster analysis,}
+    \author{M.C. Cowgill, R.J. Harvey, L.T. Watson,}
+    \url{https://www.sciencedirect.com/science/article/pii/S0898122199000905}
+    
+    \bibitem{kmeans}
+    \textsl{Using Genetic Algorithm for Selection of Initial Cluster Centers for the K-Means Method,}
+    \author{W. Kwedlo, P. Iwanowicz,}
+    \url{https://link.springer.com/chapter/10.1007/978-3-642-13232-2_20}
+
+    \bibitem{selection}
+    \textsl{A review of selection methods in genetic algorithm,}
+    \author{R. Sivaraj,}
+    \url{http://www.ijest.info/docs/IJEST11-03-05-190.pdf}
+
+    \bibitem{mutation}
+    \textsl{A Faster Genetic Clustering Algorithm,}
+    \author{L Meng,Q H Wu,Z Z Yong,}
+    \url{https://link.springer.com/chapter/10.1007/3-540-45561-2_3}
+
+    \bibitem{Silhouette}
+    \textsl{Performance Evaluation of the Silhouette Index,}
+    \author{A. Starczewski, A. Krzyżak,}
+    \url{https://link.springer.com/chapter/10.1007/978-3-319-19369-4\_5}
+
+    \bibitem{ScienceDirect}
+    \textsl{Genetic algorithm-based clustering technique,}
+    \author{Ujjwal Maulika, Sanghamitra Bandyopadhyay,}
+    \url{https://www.sciencedirect.com/science/article/abs/pii/S0031320399001375}
+
+
+
+    % \bibitem{Crossover}
+    % \textsl{A Simplex-Crossover-Based Multi-Objective Evolutionary Algorithm,}
+    % \author{Claudio Comis, Da RoncoErnesto Benini,}
+    % \url{https://link.springer.com/chapter/10.1007\%2F978-94-007-6818-5_41}
+    
+\end{thebibliography}
+
+\end{document}
