@@ -105,7 +105,8 @@ namespace Task3
                 $"\n  Function:    {function}" +
                 $"\n  Selection:   {(IsRoulette ? "Roulette Wheel" : "Elite")}" +
                 $"\n  Crossover:   {(IsThreeParent ? "Three Parent" : $"Uniform ({UniformChance})")}" +
-                 "\n  Mutation:    Own mutation");
+                 "\n  Mutation:    Own mutation" +
+                $"\n  Chance:      {MutationChance}");
             Console.WriteLine("\nRUN RESULTS:" +
                 $"\n  Fitness:   {Math.Round(bestChromose.Fitness.Value, 3)}" +
                 $"\n  Clusters:  {bestChromose.Length}" +
